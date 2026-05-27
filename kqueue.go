@@ -1,89 +1,25 @@
+//go:build (freebsd || netbsd || openbsd || dragonfly || darwin) && (amd64 || arm64)
 // +build freebsd netbsd openbsd dragonfly darwin
 // +build amd64 arm64
 
 package immortal
 
-import "syscall"
-
 // WatchDir check for changes on a directory via Kqueue EVFILT_VNODE
-func WatchDir(dir string, ch chan<- string) error {
-	watchfd, err := syscall.Open(dir, openModeDir, 0700)
-	if err != nil {
-		return err
-	}
+func WatchDir(dir string, ch chan<- string) error { _ = "STUB: not implemented"; return nil }
 
-	kq, err := syscall.Kqueue()
-	if err != nil {
-		syscall.Close(watchfd)
-		return err
-	}
+// create kevent
 
-	ev1 := syscall.Kevent_t{
-		Ident:  uint64(watchfd),
-		Filter: syscall.EVFILT_VNODE,
-		Flags:  syscall.EV_ADD | syscall.EV_ENABLE | syscall.EV_CLEAR,
-		Fflags: syscall.NOTE_WRITE | syscall.NOTE_ATTRIB,
-		Data:   0,
-	}
+// wait for an event
 
-	for {
-		// create kevent
-		kevents := []syscall.Kevent_t{ev1}
-		n, err := syscall.Kevent(kq, kevents, kevents, nil)
-		if err != nil {
-			syscall.Close(watchfd)
-			return err
-		}
-
-		// wait for an event
-		for len(kevents) > 0 {
-			if n > 0 {
-				ch <- dir
-			}
-			// Move to next event
-			kevents = kevents[1:]
-		}
-	}
-}
+// Move to next event
 
 // WatchFile check for changes on a file via kqueue EVFILT_VNODE
-func WatchFile(f string, ch chan<- string) error {
-	watchfd, err := syscall.Open(f, openModeFile, 0700)
-	if err != nil {
-		return err
-	}
+func WatchFile(f string, ch chan<- string) error { _ = "STUB: not implemented"; return nil }
 
-	kq, err := syscall.Kqueue()
-	if err != nil {
-		syscall.Close(watchfd)
-		return err
-	}
+// create kevent
 
-	ev1 := syscall.Kevent_t{
-		Ident:  uint64(watchfd),
-		Filter: syscall.EVFILT_VNODE,
-		Flags:  syscall.EV_ADD | syscall.EV_ENABLE | syscall.EV_ONESHOT,
-		Fflags: syscall.NOTE_DELETE | syscall.NOTE_WRITE | syscall.NOTE_ATTRIB | syscall.NOTE_LINK | syscall.NOTE_RENAME | syscall.NOTE_REVOKE,
-		Data:   0,
-	}
+// wait for an event
 
-	// create kevent
-	kevents := []syscall.Kevent_t{ev1}
-	n, err := syscall.Kevent(kq, kevents, kevents, nil)
-	if err != nil {
-		syscall.Close(watchfd)
-		return err
-	}
+// do something
 
-	// wait for an event
-	for len(kevents) > 0 {
-		if n > 0 {
-			// do something
-		}
-		// Move to next event
-		kevents = kevents[1:]
-	}
-	syscall.Close(watchfd)
-	ch <- f
-	return nil
-}
+// Move to next event

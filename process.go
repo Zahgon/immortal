@@ -1,10 +1,8 @@
 package immortal
 
 import (
-	"fmt"
 	"os"
 	"os/exec"
-	"strconv"
 	"syscall"
 	"time"
 )
@@ -31,160 +29,63 @@ type process struct {
 // SetEnv set environment variables - If the Cmd.Env contains duplicate
 // environment keys, only the last value in the slice for each duplicate
 // key is used.
-func (p *process) SetEnv(env []string) {
-	if p.Env != nil {
-		for k, v := range p.Env {
-			env = append(env, fmt.Sprintf("%s=%s", k, v))
-		}
-		p.cmd.Env = env
-	}
-}
+func (p *process) SetEnv(env []string) { _ = "STUB: not implemented"; return }
 
 // SetsysProcAttr - set process group ID and owner (run on behalf)
-func (p *process) SetsysProcAttr() error {
-	sysProcAttr := &syscall.SysProcAttr{
-		Setpgid: true, // Set process group ID to Pgid, or, if Pgid == 0, to new pid.
-		Pgid:    0,    // Child's process group ID if Setpgid.
-	}
+func (p *process) SetsysProcAttr() error { _ = "STUB: not implemented"; return nil }
 
-	// set owner
-	if p.user != nil {
-		uid, err := strconv.Atoi(p.user.Uid)
-		if err != nil {
-			return err
-		}
-		gid, err := strconv.Atoi(p.user.Gid)
-		if err != nil {
-			return err
-		}
-		sysProcAttr.Credential = &syscall.Credential{
-			Uid: uint32(uid),
-			Gid: uint32(gid),
-		}
-	}
+// Set process group ID to Pgid, or, if Pgid == 0, to new pid.
+// Child's process group ID if Setpgid.
 
-	// set the attributes
-	p.cmd.SysProcAttr = sysProcAttr
+// set owner
 
-	return nil
-}
+// set the attributes
 
 // Start runs the command
 func (p *process) Start() (*process, error) {
+	_ = "STUB: not implemented"
 	// command obtained from Config parent
-	p.cmd = exec.Command(p.command[0], p.command[1:]...)
-
-	// change working directory
-	if p.Cwd != "" {
-		p.cmd.Dir = p.Cwd
-	}
-
-	// set environment variables
-	p.SetEnv(os.Environ())
-
-	// set sysProcAttr
-	if err := p.SetsysProcAttr(); err != nil {
-		return nil, err
-	}
-
-	var (
-		prStdout, prStderr, pwStdout, pwStderr *os.File
-		e                                      error
-	)
-	// log only if are available loggers
-	if p.Logger.IsLogging() && p.LoggerStderr.IsLogging() {
-		// create the pipes for Stdout
-		prStdout, pwStdout, e = os.Pipe()
-		if e == nil {
-			p.cmd.Stdout = pwStdout
-			go p.Logger.Log(prStdout)
-		}
-		prStderr, pwStderr, e = os.Pipe()
-		if e == nil {
-			p.cmd.Stderr = pwStderr
-			go p.LoggerStderr.Log(prStderr)
-		}
-	} else if p.Logger.IsLogging() {
-		// create the pipes for Stdout
-		prStdout, pwStdout, e = os.Pipe()
-		if e == nil {
-			p.cmd.Stdout = pwStdout
-			p.cmd.Stderr = pwStdout
-			go p.Logger.Log(prStdout)
-		}
-	} else if p.LoggerStderr.IsLogging() {
-		// create the pipes for Stdout
-		prStderr, pwStderr, e = os.Pipe()
-		if e == nil {
-			p.cmd.Stderr = pwStderr
-			go p.LoggerStderr.Log(prStderr)
-		}
-	}
-
-	// Start the process
-	if err := p.cmd.Start(); err != nil {
-		return nil, err
-	}
-
-	// set start time
-	p.sTime = time.Now()
-
-	// wait process to finish in a goroutine
-	go p.Wait(pwStdout, pwStderr)
-
-	return p, nil
+	return nil, nil
 }
+
+// change working directory
+
+// set environment variables
+
+// set sysProcAttr
+
+// log only if are available loggers
+
+// create the pipes for Stdout
+
+// create the pipes for Stdout
+
+// create the pipes for Stdout
+
+// Start the process
+
+// set start time
+
+// wait process to finish in a goroutine
 
 // Wait - wait process to finish
-func (p *process) Wait(stdout, stderr *os.File) {
-	err := p.cmd.Wait()
-	if stdout != nil {
-		stdout.Close()
-		close(p.quit)
-	}
-	if stderr != nil {
-		stderr.Close()
-	}
-	p.errch <- err
-}
+func (p *process) Wait(stdout, stderr *os.File) { _ = "STUB: not implemented"; return }
 
 // Kill the entire Process group.
-func (p *process) Kill() error {
-	processGroup := 0 - p.cmd.Process.Pid
-	return syscall.Kill(processGroup, syscall.SIGKILL)
-}
+func (p *process) Kill() error { _ = "STUB: not implemented"; return nil }
 
 // Pid return Process PID
-func (p *process) Pid() int {
-	if p.cmd == nil || p.cmd.Process == nil {
-		return 0
-	}
-	return p.cmd.Process.Pid
-}
+func (p *process) Pid() int { _ = "STUB: not implemented"; return 0 }
 
 // Signal sends a signal to the Process
-func (p *process) Signal(sig syscall.Signal) error {
-	return syscall.Kill(p.cmd.Process.Pid, sig)
-}
+func (p *process) Signal(sig syscall.Signal) error { _ = "STUB: not implemented"; return nil }
 
 // GetProccess
 func (p *process) GetProcess() *process {
-	return p
+	_ = "STUB: not implemented"
+
+	// NewProcess return process instance
+	return nil
 }
 
-// NewProcess return process instance
-func NewProcess(cfg *Config) *process {
-	qch := make(chan struct{})
-	return &process{
-		Config: cfg,
-		Logger: &LogWriter{
-			logger: NewLogger(cfg, qch),
-		},
-		LoggerStderr: &LogWriter{
-			logger: NewStderrLogger(cfg),
-		},
-		errch: make(chan error, 1),
-		quit:  qch,
-		sTime: time.Now(),
-	}
-}
+func NewProcess(cfg *Config) *process { _ = "STUB: not implemented"; return nil }

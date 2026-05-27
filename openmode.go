@@ -1,3 +1,4 @@
+//go:build freebsd || netbsd || openbsd || dragonfly
 // +build freebsd netbsd openbsd dragonfly
 
 package immortal
